@@ -1,10 +1,16 @@
 package it.polito.med;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 public class MedManager {
+
+	private HashSet<String> specialities = new HashSet<>();
+	private TreeMap<String, Doctor> doctors = new TreeMap<>();
 
 	/**
 	 * add a set of medical specialities to the list of specialities
@@ -15,6 +21,7 @@ public class MedManager {
 	 * @param specialities the specialities
 	 */
 	public void addSpecialities(String... specialities) {
+		for(String s : specialities) this.specialities.add(s);
 		
 	}
 
@@ -24,7 +31,7 @@ public class MedManager {
 	 * @return list of specialities
 	 */
 	public Collection<String> getSpecialities() {
-		return null;
+		return specialities;
 	}
 	
 	
@@ -38,7 +45,10 @@ public class MedManager {
 	 * @throws MedException in case of duplicate id or non-existing speciality
 	 */
 	public void addDoctor(String id, String name, String surname, String speciality) throws MedException {
+		if(doctors.containsKey(id)) throw new MedException();
+		else if(!specialities.contains(speciality)) throw new MedException();
 
+		doctors.put(id, new Doctor(id, name, surname, speciality));
 	}
 
 	/**
@@ -48,7 +58,8 @@ public class MedManager {
 	 * @return the list of doctor ids
 	 */
 	public Collection<String> getSpecialists(String speciality) {
-		return null;
+		return doctors.values().stream().filter(d->d.getSpeciality().equals(speciality))
+		.collect(Collectors.mapping(Doctor::getId, Collectors.toList()));
 	}
 
 	/**
@@ -58,7 +69,7 @@ public class MedManager {
 	 * @return the name
 	 */
 	public String getDocName(String code) {
-		return null;
+		return doctors.get(code).getName();
 	}
 
 	/**
@@ -68,7 +79,7 @@ public class MedManager {
 	 * @return the surname
 	 */
 	public String getDocSurname(String code) {
-		return null;
+		return doctors.get(code).getSurname();
 	}
 
 	/**
