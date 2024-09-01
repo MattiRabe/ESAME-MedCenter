@@ -12,6 +12,7 @@ public class Doctor {
     private String surname;
     private String speciality;
     private TreeMap<String, List<Slot>> calendar = new TreeMap<>();
+    private TreeMap<String, Appointment> appointments = new TreeMap<>();
 
     
     public Doctor(String id, String name, String surname, String speciality) {
@@ -46,6 +47,20 @@ public class Doctor {
             return;
         }
         calendar.get(s.getDate()).add(s);
+    }
+
+    public TreeMap<String, Appointment> getAppointments() {
+        return appointments;
+    }
+
+    public void addAppointment(Appointment a){
+        appointments.put(a.getId(), a);
+    }
+
+    public double completenessRate(){
+        int numSlot = (int)calendar.values().stream().flatMap(List::stream).count();
+        if(appointments.size()==0 || numSlot==0) return 0;
+        return (double)appointments.size()/(double)numSlot;
     }
 
     

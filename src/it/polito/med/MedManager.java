@@ -3,8 +3,10 @@ package it.polito.med;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 public class MedManager {
@@ -12,6 +14,8 @@ public class MedManager {
 	private HashSet<String> specialities = new HashSet<>();
 	private TreeMap<String, Doctor> doctors = new TreeMap<>();
 	private TreeMap<String, Appointment> appointments = new TreeMap<>();
+	private String currDate;
+	private LinkedList<String> appointmentsAccepted = new LinkedList<>();
 
 	/**
 	 * add a set of medical specialities to the list of specialities
@@ -155,6 +159,7 @@ public class MedManager {
 
 		Appointment a = new Appointment(ssn, name, surname, code, date, slot);
 		appointments.put(a.getId(), a);
+		doctors.get(code).addAppointment(a);
 		return a.getId();
 	}
 
@@ -220,7 +225,8 @@ public class MedManager {
 	 * @return the number of total appointments for the day
 	 */
 	public int setCurrentDate(String date) {
-		return -1;
+		this.currDate=date;
+		return (int)appointments.values().stream().filter(a->a.getDate().equals(date)).count();
 	}
 
 	/**
@@ -229,6 +235,10 @@ public class MedManager {
 	 * @param ssn SSN of the patient
 	 */
 	public void accept(String ssn) {
+		for(Appointment a : appointments.values()){
+			if(a.getDate().equals(this.currDate) && a.getFiscalcode().equals(ssn)) a.setAccepted();
+			this.appointmentsAccepted.addLast(a.getId());
+		}
 
 	}
 
@@ -242,6 +252,9 @@ public class MedManager {
 	 * @return appointment id
 	 */
 	public String nextAppointment(String code) {
+		for(String s : appointmentsAccepted){
+			if(appointments.get(s).getMedId().equals(code) && appointments.get(s).isCompleted()==false) return s;
+		}
 		return null;
 	}
 
@@ -258,6 +271,11 @@ public class MedManager {
 	 * 						or appointment not for the current day
 	 */
 	public void completeAppointment(String code, String appId)  throws MedException {
+		if(!appointmentsAccepted.contains(appId)) throw new MedException();
+		if(!doctors.containsKey(code)) throw new MedException();
+		if(!appointments.get(appId).getMedId().equals(code)) throw new MedException();
+		if(!appointments.get(appId).getDate().equals(currDate)) throw new MedException();
+		appointments.get(appId).setCompleted();
 
 	}
 
@@ -270,7 +288,17 @@ public class MedManager {
 	 * @return	no show rate
 	 */
 	public double showRate(String code, String date) {
-		return -1.0;
+		int appTot = (int)appointments.values().stream().filter(a->a.getMedId().equals(code) && a.getDate().equals(date))
+		.count();
+
+		int patAccepted=0;
+		for(String s : appointmentsAccepted){
+			if(appointments.get(s).getDate().equals(date) && appointments.get(s).getMedId().equals(code) && appointments.get(s).isAccepted()==true){
+				patAccepted++;
+			}
+		}
+
+		return (double)patAccepted/(double)appTot;
 	}
 
 	/**
@@ -282,7 +310,7 @@ public class MedManager {
 	 * @return the map id : completeness
 	 */
 	public Map<String, Double> scheduleCompleteness() {
-		return null;
+		return doctors.values().stream().collect(Collectors.toMap(Doctor::getId, Doctor::completenessRate));
 	}
 
 

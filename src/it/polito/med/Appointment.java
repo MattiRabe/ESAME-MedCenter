@@ -13,6 +13,8 @@ public class Appointment {
     private String medId;
     private String date;
     private String slot;
+    private Boolean accepted;
+    private Boolean completed;
 
     
 
@@ -24,6 +26,8 @@ public class Appointment {
         this.date = date;
         this.slot = slot;
         this.id=Integer.toString(BASE +INCREMENT++);
+        this.accepted=false;
+        this.completed=false;
     }
 
     public String getId() {
@@ -57,6 +61,22 @@ public class Appointment {
     public String getStart(){
         String[] start = this.slot.split("-");
         return start[0];
+    }
+
+    public Boolean isAccepted(){
+        return accepted;
+    }
+
+    public void setAccepted(){
+        this.accepted=true;
+    }
+
+    public Boolean isCompleted(){
+        return completed;
+    }
+
+    public void setCompleted(){
+        this.completed=true;
     }
 
     
