@@ -1,5 +1,9 @@
 package it.polito.med;
 
+import java.util.TreeMap;
+import java.util.List;
+import java.util.LinkedList;
+
 public class Doctor {
 
     //String id, String name, String surname, String speciality
@@ -7,6 +11,7 @@ public class Doctor {
     private String name;
     private String surname;
     private String speciality;
+    private TreeMap<String, List<Slot>> calendar = new TreeMap<>();
 
     
     public Doctor(String id, String name, String surname, String speciality) {
@@ -27,6 +32,20 @@ public class Doctor {
     }
     public String getSpeciality() {
         return speciality;
+    }
+
+    public TreeMap<String, List<Slot>> getCalendar() {
+        return calendar;
+    }
+
+    public void addSlot(Slot s){
+        if(!calendar.containsKey(s.getDate())){
+            List<Slot> l = new LinkedList<>();
+            l.add(s);
+            calendar.put(s.getDate(), l);
+            return;
+        }
+        calendar.get(s.getDate()).add(s);
     }
 
     

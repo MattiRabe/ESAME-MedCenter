@@ -95,7 +95,24 @@ public class MedManager {
 	 * @return the number of slots defined
 	 */
 	public int addDailySchedule(String code, String date, String start, String end, int duration) {
-		return -1;
+
+		String[] st = start.split(":");
+		String[] ed = end.split(":");
+		Integer startMin = (Integer.parseInt(st[0])*60)+Integer.parseInt(st[1]);
+		Integer endMin = (Integer.parseInt(ed[0])*60)+Integer.parseInt(ed[1]);
+		int slots = (endMin-startMin)/duration;
+
+		for(int i=0; i<slots; i++){
+			Integer currEndTot = startMin+duration;
+			Integer hoursEnd = currEndTot/60;
+			Integer minEnd = currEndTot%60;
+			Integer hoursStart = startMin/60;
+			Integer minStart = startMin%60;
+
+			doctors.get(code).addSlot(new Slot(date, hoursStart+":"+minStart, hoursEnd+":"+minEnd, code));
+			startMin+=duration;
+		}
+		return slots;
 	}
 
 	/**
@@ -109,7 +126,9 @@ public class MedManager {
 	 * @return a map doc-id -> list of slots in the schedule
 	 */
 	public Map<String, List<String>> findSlots(String date, String speciality) {
-		return null;
+		return this.doctors.values().stream().filter(d->d.getSpeciality().equals(speciality))
+		.flatMap(d->d.getCalendar().values().stream()).flatMap(List::stream).filter(s->s.getDate().equals(date))
+		.collect(Collectors.groupingBy(Slot::getMedId, TreeMap::new, Collectors.mapping(Slot::toString, Collectors.toList())));
 	}
 
 	/**
