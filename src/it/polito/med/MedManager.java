@@ -11,6 +11,7 @@ public class MedManager {
 
 	private HashSet<String> specialities = new HashSet<>();
 	private TreeMap<String, Doctor> doctors = new TreeMap<>();
+	private TreeMap<String, Appointment> appointments = new TreeMap<>();
 
 	/**
 	 * add a set of medical specialities to the list of specialities
@@ -144,7 +145,17 @@ public class MedManager {
 	 * @throws MedException	in case of invalid code, date or slot
 	 */
 	public String setAppointment(String ssn, String name, String surname, String code, String date, String slot) throws MedException {
-		return null;
+		if(!doctors.containsKey(code)) throw new MedException();
+		if(!doctors.get(code).getCalendar().containsKey(date)) throw new MedException();
+		Boolean found=false;
+		for(Slot s : doctors.get(code).getCalendar().get(date)){
+			if(s.toString().equals(slot)) found=true;
+		}
+		if(found==false) throw new MedException();
+
+		Appointment a = new Appointment(ssn, name, surname, code, date, slot);
+		appointments.put(a.getId(), a);
+		return a.getId();
 	}
 
 	/**
@@ -154,7 +165,7 @@ public class MedManager {
 	 * @return doctor code id
 	 */
 	public String getAppointmentDoctor(String idAppointment) {
-		return null;
+		return appointments.get(idAppointment).getMedId();
 	}
 
 	/**
@@ -164,7 +175,7 @@ public class MedManager {
 	 * @return doctor patient ssn
 	 */
 	public String getAppointmentPatient(String idAppointment) {
-		return null;
+		return appointments.get(idAppointment).getFiscalcode();
 	}
 
 	/**
@@ -174,7 +185,7 @@ public class MedManager {
 	 * @return time of appointment
 	 */
 	public String getAppointmentTime(String idAppointment) {
-		return null;
+		return appointments.get(idAppointment).getStart();
 	}
 
 	/**
@@ -184,7 +195,7 @@ public class MedManager {
 	 * @return date
 	 */
 	public String getAppointmentDate(String idAppointment) {
-		return null;
+		return appointments.get(idAppointment).getDate();
 	}
 
 	/**
@@ -197,7 +208,8 @@ public class MedManager {
 	 * @return list of appointments
 	 */
 	public Collection<String> listAppointments(String code, String date) {
-		return null;
+		return appointments.values().stream().filter(a->a.getMedId().equals(code) && a.getDate().equals(date))
+		.collect(Collectors.mapping(a->String.format("%s=%s", a.getStart(), a.getFiscalcode()), Collectors.toList()));
 	}
 
 	/**

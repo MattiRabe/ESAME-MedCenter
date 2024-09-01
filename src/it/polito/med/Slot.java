@@ -59,9 +59,6 @@ public class Slot {
         return endInt;
     }
 
-    
-
-
     @Override
     public String toString() {
         return startStr+"-"+endStr;
@@ -71,9 +68,5 @@ public class Slot {
     public String getMedId() {
         return medId;
     }
-
-    
-
-
 
 }
